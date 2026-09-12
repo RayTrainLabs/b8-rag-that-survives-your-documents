@@ -779,6 +779,600 @@ body{
 .social .ico{width:calc(.245 * var(--in));height:calc(.245 * var(--in))}
 .stage:has(.social)::after{content:none}
 
+/* ==== pictures =====================================================
+   The kit had none. Fourteen layouts and not one of them produced an
+   image, which meant a deck teaching software could not show the
+   software. Every block below sits in the same band the table and the
+   chart use, 1.32 down to about 4.17, so a kicker at 4.31 and a source
+   at 4.55 still fit under it.
+
+   Images are inlined as data URIs by build.py. Write a relative path
+   and it is embedded at build time; the deck stays one file.
+   ================================================================== */
+
+/* figure: an image with a caption. The caption is not optional
+   furniture. A screenshot with no caption makes the room hunt for
+   what they are supposed to be looking at. */
+.figure{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);height:calc(2.85 * var(--in));
+  display:flex;flex-direction:column;gap:calc(.15 * var(--in));
+}
+.figure img{
+  width:100%;flex:1 1 auto;min-height:0;object-fit:contain;object-position:center;
+}
+.fig-cap{
+  flex:0 0 auto;font-size:calc(9.8 * var(--pt));line-height:1.35;color:var(--muted);
+}
+.dark .figure img{border-color:var(--dark-line);background:var(--dark-card)}
+.dark .fig-cap{color:var(--dark-body)}
+
+/* shot: a screenshot with numbered pins on it. The pin is the whole
+   point. "Look at the top right" is a sentence the room has to decode
+   while the slide is already moving; a numbered dot on the pixel is
+   not. Position each pin with --x and --y as percentages of the
+   image box. The ring around it is the page colour, so a pin stays
+   readable on a dark screenshot and on a light one. */
+.shot{
+  position:absolute;top:calc(1.32 * var(--in));
+  height:calc(2.85 * var(--in));
+  aspect-ratio:var(--ar, 1.78);
+  left:50%;transform:translateX(-50%);
+}
+.shot img{
+  width:100%;height:100%;display:block;object-fit:fill;
+  border:calc(1 * var(--pt)) solid var(--card-line);
+}
+.pin{
+  position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);
+  transform:translate(-50%,-50%);
+  width:calc(.30 * var(--in));height:calc(.30 * var(--in));border-radius:50%;
+  background:var(--accent-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--head);font-size:calc(10 * var(--pt));font-weight:700;line-height:1;
+  box-shadow:0 0 0 calc(2 * var(--pt)) var(--page);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.dark .shot img{border-color:var(--dark-line);background:var(--dark-card)}
+.dark .pin{box-shadow:0 0 0 calc(2 * var(--pt)) var(--dark-card)}
+
+/* split: the picture on one side, the argument on the other. Use wide
+   when the image is a wide screenshot and the text is short. */
+.split{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);height:calc(2.85 * var(--in));
+  display:grid;grid-template-columns:1fr 1fr;
+  column-gap:calc(.34 * var(--in));align-items:center;
+}
+.split.wide{grid-template-columns:1.4fr 1fr}
+.split img{
+  width:100%;height:auto;max-height:100%;object-fit:contain;
+  border:calc(1 * var(--pt)) solid var(--card-line);
+}
+.sl-text b{
+  display:block;font-family:var(--head);
+  font-size:calc(14 * var(--pt));font-weight:600;line-height:1.2;color:var(--ink);
+  padding-bottom:calc(.12 * var(--in));
+}
+.sl-text span{font-size:calc(10.5 * var(--pt));line-height:1.5;color:var(--muted)}
+.dark .sl-text b{color:#fff}
+.dark .sl-text span{color:var(--dark-body)}
+
+/* full: a full bleed image with one line over it.
+   The scrim is mandatory and it is not a taste decision. Every other
+   colour pair in this kit was checked against a known background;
+   this is the one element whose background is a photograph nobody has
+   seen yet, so contrast cannot be computed. The gradient guarantees a
+   dark field under the text regardless of what the picture is doing.
+   Never remove it, and never put body copy outside the left column
+   where it is darkest. */
+.full{position:absolute;inset:0;overflow:hidden}
+.full img{width:100%;height:100%;object-fit:cover;display:block}
+.full::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(95deg, rgba(8,10,12,.88) 0%, rgba(8,10,12,.74) 42%,
+                                     rgba(8,10,12,.20) 100%);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fu-say{
+  position:absolute;left:var(--margin);top:calc(1.75 * var(--in));
+  width:calc(5.3 * var(--in));z-index:2;
+}
+.fu-say h2{
+  font-family:var(--head);font-size:calc(29 * var(--pt));font-weight:700;
+  line-height:1.16;letter-spacing:-.012em;color:#fff;
+}
+.fu-say p{
+  font-size:calc(11.5 * var(--pt));line-height:1.5;color:rgba(255,255,255,.92);
+  padding-top:calc(.22 * var(--in));
+}
+
+/* ==== diagrams =====================================================
+   A diagram earns its place when the relationship between the parts
+   is the lesson. If the parts are simply a list, a list is honest and
+   a diagram is decoration with arrows on it.
+   ================================================================== */
+
+/* flow: stages in order, with the arrow between them doing the work.
+   Reach for it wherever a slide currently says "first, then, then". */
+.flow{
+  position:absolute;left:var(--margin);top:calc(1.60 * var(--in));
+  width:var(--content);height:calc(2.10 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.54 * var(--in));align-items:stretch;
+}
+.fl-step{
+  position:relative;background:var(--card);
+  border:calc(1 * var(--pt)) solid var(--card-line);
+  padding:calc(.22 * var(--in));
+  display:flex;flex-direction:column;gap:calc(.06 * var(--in));
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fl-step + .fl-step::before{
+  content:'';position:absolute;left:calc(-.40 * var(--in));top:50%;
+  width:calc(.22 * var(--in));height:calc(.22 * var(--in));
+  transform:translateY(-50%) rotate(45deg);
+  border-top:calc(2.2 * var(--pt)) solid var(--accent);
+  border-right:calc(2.2 * var(--pt)) solid var(--accent);
+}
+.fl-step b{
+  font-family:var(--head);font-size:calc(12 * var(--pt));font-weight:600;
+  color:var(--ink);display:block;
+}
+.fl-step span{font-size:calc(9.4 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .fl-step{background:var(--dark-card);border-color:var(--dark-line)}
+.dark .fl-step b{color:#fff}
+.dark .fl-step span{color:var(--dark-body)}
+.dark .fl-step + .fl-step::before{border-color:var(--accent-lift)}
+
+/* spine: one vertical line, with parallel points hanging off it.
+   For a sequence whose steps are not equal in weight, or a timeline
+   where what matters is that everything hangs off one thread. */
+.spine{
+  position:absolute;left:var(--margin);top:calc(1.42 * var(--in));
+  width:var(--content);height:calc(2.70 * var(--in));
+  padding-left:calc(1.00 * var(--in));
+  display:grid;row-gap:calc(.10 * var(--in));align-content:space-between;
+}
+.spine::before{
+  content:'';position:absolute;left:calc(.30 * var(--in));top:calc(.14 * var(--in));
+  bottom:calc(.14 * var(--in));width:calc(2.5 * var(--pt));background:var(--accent);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.spn-node{position:relative}
+.spn-node::before{
+  content:'';position:absolute;left:calc(-.62 * var(--in));top:calc(.17 * var(--in));
+  width:calc(.50 * var(--in));height:calc(2 * var(--pt));background:var(--accent);
+}
+.spn-node::after{
+  content:'';position:absolute;left:calc(-.79 * var(--in));top:calc(.08 * var(--in));
+  width:calc(.20 * var(--in));height:calc(.20 * var(--in));border-radius:50%;
+  background:var(--page);border:calc(2.5 * var(--pt)) solid var(--accent);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.spn-node b{
+  display:block;font-family:var(--head);font-size:calc(12 * var(--pt));
+  font-weight:600;color:var(--ink);
+}
+.spn-node span{font-size:calc(9.4 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .spine::before,.dark .spn-node::before{background:var(--accent-lift)}
+.dark .spn-node::after{background:var(--dark-bg);border-color:var(--accent-lift)}
+.dark .spn-node b{color:#fff}
+.dark .spn-node span{color:var(--dark-body)}
+
+/* fishbone: causes feeding one effect. The only diagram here that is
+   genuinely a diagram rather than a arranged list, and the only one
+   worth the space when a room is arguing about why something broke.
+   Ribs take --x, a percentage across the spine. */
+.fishbone{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.60 * var(--in));
+}
+.fishbone::before{
+  content:'';position:absolute;left:0;right:calc(1.70 * var(--in));top:50%;
+  height:calc(2.5 * var(--pt));background:var(--accent);transform:translateY(-50%);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fb-head{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:calc(1.62 * var(--in));min-height:calc(.70 * var(--in));
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:var(--accent-deep);color:#fff;padding:calc(.12 * var(--in));
+  font-family:var(--head);font-size:calc(10.5 * var(--pt));font-weight:600;line-height:1.25;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fb-rib{position:absolute;left:calc(var(--x) * 1%);width:calc(1.85 * var(--in))}
+.fb-rib b{
+  display:block;font-family:var(--head);font-size:calc(10 * var(--pt));
+  font-weight:600;color:var(--ink);line-height:1.2;
+}
+.fb-rib span{display:block;font-size:calc(8.6 * var(--pt));line-height:1.32;color:var(--muted)}
+.fb-bone{
+  position:absolute;left:0;
+  width:calc(.56 * var(--in));height:calc(1.8 * var(--pt));
+  background:var(--accent);transform-origin:left center;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fb-rib.up{bottom:calc(50% + .30 * var(--in))}
+.fb-rib.up .fb-bone{bottom:0;transform:rotate(34deg)}
+.fb-rib.down{top:calc(50% + .30 * var(--in))}
+.fb-rib.down .fb-bone{top:0;transform:rotate(-34deg)}
+.dark .fishbone::before,.dark .fb-bone{background:var(--accent-lift)}
+.dark .fb-rib b{color:#fff}
+.dark .fb-rib span{color:var(--dark-body)}
+.dark .fb-head{background:var(--accent-lift);color:var(--dark-bg)}
+
+/* funnel: stages that lose volume. Bars are centred and shrink, which
+   reads as a funnel without a single clip-path, because clip-path is
+   the first thing a PDF renderer gets wrong. --w is the width as a
+   percentage of the block. */
+.funnel{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.60 * var(--in));
+  display:grid;align-content:space-between;row-gap:calc(.10 * var(--in));
+}
+.fn-row{
+  display:grid;grid-template-columns:1fr calc(3.30 * var(--in));
+  align-items:center;column-gap:calc(.30 * var(--in));
+}
+.fn-bar{
+  width:calc(var(--w) * 1%);margin:0 auto;height:calc(.46 * var(--in));
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--head);font-size:calc(12.5 * var(--pt));font-weight:700;line-height:1;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fn-row b{
+  display:block;font-family:var(--head);font-size:calc(11 * var(--pt));
+  font-weight:600;color:var(--ink);
+}
+.fn-row span{display:block;font-size:calc(9 * var(--pt));line-height:1.35;color:var(--muted)}
+.dark .fn-bar{background:var(--accent-lift);color:var(--dark-bg)}
+.dark .fn-row b{color:#fff}
+.dark .fn-row span{color:var(--dark-body)}
+
+/* venn: two or three sets that overlap. The fill is the accent at low
+   alpha rather than a blend mode, so the overlap darkens by simple
+   arithmetic and prints the same way it screens. */
+.venn{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.55 * var(--in));
+  display:flex;align-items:center;justify-content:center;
+}
+.vn-set{
+  width:calc(1.78 * var(--in));height:calc(1.78 * var(--in));border-radius:50%;
+  border:calc(2 * var(--pt)) solid var(--accent);
+  background:color-mix(in srgb, var(--accent) 15%, transparent);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:calc(.20 * var(--in));
+  font-family:var(--head);font-size:calc(10 * var(--pt));font-weight:600;
+  line-height:1.25;color:var(--ink);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.vn-set + .vn-set{margin-left:calc(-.52 * var(--in))}
+.vn-note{
+  position:absolute;left:0;right:0;bottom:0;text-align:center;
+  font-size:calc(9.4 * var(--pt));color:var(--muted);
+}
+.dark .vn-set{border-color:var(--accent-lift);color:#fff;
+  background:color-mix(in srgb, var(--accent-lift) 18%, transparent)}
+.dark .vn-note{color:var(--dark-body)}
+
+/* matrix: two axes, four quadrants, and one of them is the answer.
+   Mark it with hi. The axis labels are separate elements because they
+   sit outside the grid, which is the only way they do not steal a
+   quadrant's width. */
+.matrix{
+  position:absolute;left:calc(1.20 * var(--in));top:calc(1.42 * var(--in));
+  width:calc(7.55 * var(--in));height:calc(2.48 * var(--in));
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:calc(2 * var(--pt));background:var(--card-line);
+  border:calc(2 * var(--pt)) solid var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.mx-q{
+  background:var(--card);padding:calc(.20 * var(--in));
+  display:flex;flex-direction:column;gap:calc(.05 * var(--in));
+}
+.mx-q.hi{background:var(--tip-bg)}
+.mx-q b{font-family:var(--head);font-size:calc(11.5 * var(--pt));font-weight:600;color:var(--ink)}
+.mx-q span{font-size:calc(9 * var(--pt));line-height:1.35;color:var(--muted)}
+.mx-x{
+  position:absolute;left:calc(1.20 * var(--in));top:calc(4.02 * var(--in));
+  width:calc(7.55 * var(--in));text-align:center;
+  font-size:calc(8.6 * var(--pt));letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--accent);
+}
+.mx-y{
+  position:absolute;left:calc(.62 * var(--in));top:calc(3.90 * var(--in));
+  transform:rotate(-90deg);transform-origin:left center;white-space:nowrap;
+  font-size:calc(8.6 * var(--pt));letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--accent);
+}
+.dark .matrix{background:var(--dark-line);border-color:var(--dark-line)}
+.dark .mx-q{background:var(--dark-card)}
+.dark .mx-q.hi{background:var(--dark-bg)}
+.dark .mx-q b{color:#fff}
+.dark .mx-q span{color:var(--dark-body)}
+.dark .mx-x,.dark .mx-y{color:var(--accent-lift)}
+
+/* swimlane: who does what, when. Set --cols to the number of phases.
+   Mark the cells that matter with on; a lane of uniformly filled
+   cells is a table wearing a costume. */
+.swim{
+  position:absolute;left:var(--margin);top:calc(1.42 * var(--in));
+  width:var(--content);height:calc(2.70 * var(--in));
+  display:grid;
+  grid-template-columns:calc(1.25 * var(--in)) repeat(var(--cols,3), 1fr);
+  gap:calc(1.5 * var(--pt));
+  background:var(--card-line);border:calc(1.5 * var(--pt)) solid var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.sw-h{
+  background:var(--accent-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--head);font-size:calc(8.8 * var(--pt));font-weight:700;
+  letter-spacing:.10em;text-transform:uppercase;padding:calc(.10 * var(--in));
+}
+.sw-lane{
+  background:var(--card);display:flex;align-items:center;
+  padding:calc(.12 * var(--in));
+  font-family:var(--head);font-size:calc(9.6 * var(--pt));font-weight:600;color:var(--ink);
+}
+.sw-cell{
+  background:var(--page);padding:calc(.14 * var(--in));
+  font-size:calc(8.8 * var(--pt));line-height:1.35;color:var(--muted);
+  display:flex;align-items:center;
+}
+.sw-cell.on{background:var(--tip-bg);color:var(--ink)}
+.dark .swim{background:var(--dark-line);border-color:var(--dark-line)}
+.dark .sw-h{background:var(--accent-lift);color:var(--dark-bg)}
+.dark .sw-lane{background:var(--dark-card);color:#fff}
+.dark .sw-cell{background:var(--dark-bg);color:var(--dark-body)}
+.dark .sw-cell.on{background:var(--dark-card);color:#fff}
+
+/* layers: a stack where the order is the argument. An architecture,
+   a maturity ladder, anything read bottom up or top down. */
+.layers{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.60 * var(--in));
+  display:grid;align-content:space-between;row-gap:calc(.10 * var(--in));
+}
+.ly-row{
+  display:grid;grid-template-columns:calc(1.75 * var(--in)) 1fr;
+  align-items:center;column-gap:calc(.24 * var(--in));
+  background:var(--card);border-left:calc(4 * var(--pt)) solid var(--accent);
+  padding:calc(.12 * var(--in)) calc(.24 * var(--in));
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.ly-row.hi{background:var(--tip-bg)}
+.ly-row b{font-family:var(--head);font-size:calc(11 * var(--pt));font-weight:600;color:var(--ink)}
+.ly-row span{font-size:calc(9.3 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .ly-row{background:var(--dark-card);border-left-color:var(--accent-lift)}
+.dark .ly-row.hi{background:var(--dark-bg)}
+.dark .ly-row b{color:#fff}
+.dark .ly-row span{color:var(--dark-body)}
+
+/* ==== charts ========================================================
+   The kit had one: six horizontal bars, hand typed. That is the chart
+   you reach for when the shape of a ranking is the argument, and it is
+   the wrong instrument for four of the five exhibits a consulting deck
+   actually runs on. These are those four, plus the ring.
+
+   All of them sit in the same band the table uses, 1.32 to about 4.17,
+   so a kicker at 4.31 and a source at 4.55 still fit under. All of them
+   carry the source rule already in check.py: a figure from outside the
+   room names where it came from.
+
+   Numbers are authored, not computed. That is deliberate. A chart in a
+   deck has four to six values in it and they come off a line in
+   EVIDENCE.md, so a data pipeline here would be a way to get numbers on
+   a slide without anybody reading them.
+   ================================================================== */
+
+/* waterfall: the bridge. What the number was, what moved it, what it
+   became. The most characteristic consulting exhibit there is, and the
+   only one that shows a total and its causes in the same picture.
+   --base and --h go on the COLUMN, not on the bar. The value label is
+   a sibling of the bar, so a custom property set on the bar is
+   invisible to it and the label pins itself to the floor. That is
+   exactly what the first build did: every plus and minus sat in a row
+   along the bottom and the two totals had no label at all. Custom
+   properties inherit down, not sideways.
+
+   --base is the percentage up from the floor where the bar starts and
+   --h is its height. Mark the opening and closing columns with tot,
+   and a decrease with down. */
+.waterfall{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.45 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.22 * var(--in));align-items:end;
+}
+.wf-col{position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end}
+.wf-bar{
+  position:absolute;left:0;right:0;
+  bottom:calc(var(--base,0) * 1%);height:calc(var(--h) * 1%);
+  background:var(--accent);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.wf-col.tot .wf-bar{background:var(--accent-deep)}
+.wf-col.down .wf-bar{background:var(--card-line)}
+.wf-val{
+  position:absolute;left:0;right:0;
+  bottom:calc(var(--base,0) * 1% + var(--h) * 1% + .06 * var(--in));
+  text-align:center;font-family:var(--head);font-weight:700;
+  font-size:calc(10 * var(--pt));color:var(--ink);
+}
+.wf-lab{
+  position:absolute;left:0;right:0;top:calc(100% + .08 * var(--in));
+  text-align:center;font-size:calc(8.6 * var(--pt));line-height:1.25;color:var(--muted);
+}
+.dark .wf-col.down .wf-bar{background:var(--dark-line)}
+.dark .wf-bar{background:var(--accent-lift)}
+.dark .wf-val{color:#fff}
+.dark .wf-lab{color:var(--dark-body)}
+
+/* line: a measure over time. The one chart where the direction is the
+   whole point, which the bar chart cannot show at all.
+   Authored as an SVG polyline on a 100 x 40 viewBox, so the points are
+   readable numbers in the markup rather than pixels. Stroke takes the
+   accent from CSS, so it themes like everything else. */
+.linechart{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.35 * var(--in));
+}
+.linechart svg{width:100%;height:100%;display:block;overflow:visible}
+.ln-grid{stroke:var(--card-line);stroke-width:.25;fill:none}
+.ln-path{stroke:var(--accent);stroke-width:1.1;fill:none;
+  stroke-linejoin:round;stroke-linecap:round}
+.ln-path.b{stroke:var(--card-line);stroke-dasharray:2 1.6}
+.ln-dot{fill:var(--accent)}
+.ln-cap{font-size:3.4px;fill:var(--ink);font-weight:700;font-family:var(--head)}
+.ln-ax{font-size:3px;fill:var(--muted);font-family:var(--body)}
+.dark .ln-grid{stroke:var(--dark-line)}
+.dark .ln-path{stroke:var(--accent-lift)}
+.dark .ln-path.b{stroke:var(--dark-line)}
+.dark .ln-dot{fill:var(--accent-lift)}
+.dark .ln-cap{fill:#fff}
+.dark .ln-ax{fill:var(--dark-body)}
+
+/* stackbar: composition, and how it changes. Three or four segments a
+   bar, four or five bars. Each segment takes --w as a percentage of
+   its bar. Past four segments nobody can read the legend against the
+   stack and a table is the honest answer. */
+.stackbar{
+  position:absolute;left:var(--margin);top:calc(1.42 * var(--in));
+  width:var(--content);height:calc(2.55 * var(--in));
+  display:grid;align-content:space-between;row-gap:calc(.12 * var(--in));
+}
+.sb-row{display:grid;grid-template-columns:calc(1.35 * var(--in)) 1fr;
+  align-items:center;column-gap:calc(.20 * var(--in))}
+.sb-lab{font-family:var(--head);font-size:calc(9.8 * var(--pt));
+  font-weight:600;color:var(--ink);text-align:right}
+.sb-bar{display:flex;height:calc(.40 * var(--in));overflow:hidden}
+.sb-seg{
+  display:flex;align-items:center;justify-content:center;
+  width:calc(var(--w) * 1%);
+  font-family:var(--head);font-size:calc(8.8 * var(--pt));font-weight:700;
+  color:#fff;background:var(--accent-deep);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.sb-seg.s2{background:var(--accent)}
+.sb-seg.s3{background:color-mix(in srgb, var(--accent) 46%, var(--page));color:var(--ink)}
+.sb-seg.s4{background:var(--card-line);color:var(--ink)}
+.sb-key{
+  position:absolute;left:calc(1.55 * var(--in));top:calc(4.07 * var(--in));
+  display:flex;gap:calc(.34 * var(--in));
+  font-size:calc(8.6 * var(--pt));color:var(--muted);align-items:center;
+}
+.sb-key i{display:inline-block;width:calc(.16 * var(--in));height:calc(.16 * var(--in));
+  margin-right:calc(.07 * var(--in));vertical-align:-.02em;background:var(--accent-deep);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.sb-key i.s2{background:var(--accent)}
+.sb-key i.s3{background:color-mix(in srgb, var(--accent) 46%, var(--page))}
+.sb-key i.s4{background:var(--card-line)}
+.dark .sb-lab{color:#fff}
+.dark .sb-key{color:var(--dark-body)}
+.dark .sb-seg.s3{background:color-mix(in srgb, var(--accent-lift) 55%, var(--dark-bg));color:#fff}
+.dark .sb-seg.s4{background:var(--dark-line);color:#fff}
+.dark .sb-seg{background:var(--accent-lift);color:var(--dark-bg)}
+.dark .sb-seg.s2{background:color-mix(in srgb, var(--accent-lift) 78%, var(--dark-bg))}
+
+/* multiples: the same small chart repeated, one per thing, so the
+   comparison is between panels rather than between colours. Six is the
+   ceiling and four is better. Each panel's bar takes --v. */
+.multiples{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.45 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.26 * var(--in));
+}
+.mu-cell{
+  display:flex;flex-direction:column;justify-content:flex-end;
+  border-bottom:calc(1.5 * var(--pt)) solid var(--card-line);padding-bottom:calc(.10 * var(--in));
+}
+.mu-head{
+  font-family:var(--head);font-size:calc(9.4 * var(--pt));font-weight:600;
+  color:var(--ink);padding-bottom:calc(.08 * var(--in));
+}
+.mu-num{
+  font-family:var(--head);font-size:calc(19 * var(--pt));font-weight:700;
+  line-height:1;color:var(--accent);padding-bottom:calc(.08 * var(--in));
+}
+.mu-bar{height:calc(.22 * var(--in));background:var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.mu-bar::after{content:'';display:block;height:100%;width:calc(var(--v) * 1%);
+  background:var(--accent);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.mu-foot{font-size:calc(8.4 * var(--pt));line-height:1.3;color:var(--muted);
+  padding-top:calc(.08 * var(--in))}
+.dark .mu-cell{border-bottom-color:var(--dark-line)}
+.dark .mu-head{color:#fff}
+.dark .mu-num{color:var(--accent-lift)}
+.dark .mu-bar{background:var(--dark-line)}
+.dark .mu-bar::after{background:var(--accent-lift)}
+.dark .mu-foot{color:var(--dark-body)}
+
+/* ring: one number, as a proportion of a whole. The only chart here
+   that shows a single value, and the only honest use of a circle in a
+   deck: a pie with five slices is a table that lost its labels.
+   --p is the percentage. The dasharray is on a circumference of 100 so
+   the number in the markup is the number on the slide. */
+.rings{
+  position:absolute;left:var(--margin);top:calc(1.48 * var(--in));
+  width:var(--content);height:calc(2.35 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.30 * var(--in));align-items:start;
+}
+.rg{display:flex;flex-direction:column;align-items:center;text-align:center}
+.rg svg{width:calc(1.45 * var(--in));height:calc(1.45 * var(--in));display:block}
+.rg-track{fill:none;stroke:var(--card-line);stroke-width:4.2}
+.rg-arc{fill:none;stroke:var(--accent);stroke-width:4.2;stroke-linecap:butt;
+  transform:rotate(-90deg);transform-origin:center}
+.rg-num{font-family:var(--head);font-size:9px;font-weight:700;fill:var(--ink);
+  text-anchor:middle;dominant-baseline:central}
+.rg b{display:block;font-family:var(--head);font-size:calc(10.5 * var(--pt));
+  font-weight:600;color:var(--ink);padding-top:calc(.10 * var(--in))}
+.rg span{display:block;font-size:calc(8.8 * var(--pt));line-height:1.35;color:var(--muted)}
+.dark .rg-track{stroke:var(--dark-line)}
+.dark .rg-arc{stroke:var(--accent-lift)}
+.dark .rg-num,.dark .rg b{fill:#fff;color:#fff}
+.dark .rg span{color:var(--dark-body)}
+
+/* 30 more icons, stroke geometry. The brand marks and the
+   heartbeat five are filled; these are stroked, which is easier to
+   keep correct at 24px and is what Lucide and Feather do. */
+.ico.user{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%228%22 r=%224%22/><path d=%22M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%228%22 r=%224%22/><path d=%22M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7%22/></g></svg>")}
+.ico.users{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%229.5%22 cy=%228.5%22 r=%223.5%22/><path d=%22M2.5 20.5c0-3.9 3.1-6 7-6s7 2.1 7 6%22/><path d=%22M17 5.2a3.5 3.5 0 0 1 0 6.6%22/><path d=%22M18.5 14.8c2 .8 3 2.6 3 5.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%229.5%22 cy=%228.5%22 r=%223.5%22/><path d=%22M2.5 20.5c0-3.9 3.1-6 7-6s7 2.1 7 6%22/><path d=%22M17 5.2a3.5 3.5 0 0 1 0 6.6%22/><path d=%22M18.5 14.8c2 .8 3 2.6 3 5.2%22/></g></svg>")}
+.ico.check{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M20 6.5 9.5 17.5 4.5 12.5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M20 6.5 9.5 17.5 4.5 12.5%22/></g></svg>")}
+.ico.cross{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M6 6l12 12M18 6 6 18%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M6 6l12 12M18 6 6 18%22/></g></svg>")}
+.ico.clock{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M12 6.6V12l3.6 2.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M12 6.6V12l3.6 2.2%22/></g></svg>")}
+.ico.calendar{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%223.2%22 y=%225%22 width=%2217.6%22 height=%2216%22 rx=%222%22/><path d=%22M3.2 10h17.6M8 3v4M16 3v4%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%223.2%22 y=%225%22 width=%2217.6%22 height=%2216%22 rx=%222%22/><path d=%22M3.2 10h17.6M8 3v4M16 3v4%22/></g></svg>")}
+.ico.target{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><circle cx=%2212%22 cy=%2212%22 r=%225%22/><circle cx=%2212%22 cy=%2212%22 r=%221.3%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><circle cx=%2212%22 cy=%2212%22 r=%225%22/><circle cx=%2212%22 cy=%2212%22 r=%221.3%22/></g></svg>")}
+.ico.flag{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M5 21V4M5 5h11l-2 3.5L16 12H5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M5 21V4M5 5h11l-2 3.5L16 12H5%22/></g></svg>")}
+.ico.filter{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3.5 5h17l-6.6 7.8V20l-3.8-2.2v-5z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3.5 5h17l-6.6 7.8V20l-3.8-2.2v-5z%22/></g></svg>")}
+.ico.database{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><ellipse cx=%2212%22 cy=%226%22 rx=%228%22 ry=%223.2%22/><path d=%22M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6%22/><path d=%22M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><ellipse cx=%2212%22 cy=%226%22 rx=%228%22 ry=%223.2%22/><path d=%22M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6%22/><path d=%22M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2%22/></g></svg>")}
+.ico.trendup{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 17.5 9.5 11l4 4L21 7.5%22/><path d=%22M15.5 7.5H21V13%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 17.5 9.5 11l4 4L21 7.5%22/><path d=%22M15.5 7.5H21V13%22/></g></svg>")}
+.ico.trenddown{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 7.5 9.5 14l4-4L21 17.5%22/><path d=%22M15.5 17.5H21V12%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 7.5 9.5 14l4-4L21 17.5%22/><path d=%22M15.5 17.5H21V12%22/></g></svg>")}
+.ico.code{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M8.5 17 3.5 12l5-5M15.5 7l5 5-5 5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M8.5 17 3.5 12l5-5M15.5 7l5 5-5 5%22/></g></svg>")}
+.ico.terminal{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%224%22 width=%2218.8%22 height=%2216%22 rx=%222%22/><path d=%22M6.5 9.5 9.5 12l-3 2.5M12.5 15h5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%224%22 width=%2218.8%22 height=%2216%22 rx=%222%22/><path d=%22M6.5 9.5 9.5 12l-3 2.5M12.5 15h5%22/></g></svg>")}
+.ico.cloud{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M7 19h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.7 3.7 0 0 0 7 19z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M7 19h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.7 3.7 0 0 0 7 19z%22/></g></svg>")}
+.ico.lock{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%224.5%22 y=%2210.5%22 width=%2215%22 height=%2210%22 rx=%222%22/><path d=%22M8 10.5V7.5a4 4 0 0 1 8 0v3%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%224.5%22 y=%2210.5%22 width=%2215%22 height=%2210%22 rx=%222%22/><path d=%22M8 10.5V7.5a4 4 0 0 1 8 0v3%22/></g></svg>")}
+.ico.key{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%227.5%22 cy=%2214.5%22 r=%224%22/><path d=%22M10.4 11.6 20 2m-3 3 2.5 2.5M14.5 7.5 17 10%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%227.5%22 cy=%2214.5%22 r=%224%22/><path d=%22M10.4 11.6 20 2m-3 3 2.5 2.5M14.5 7.5 17 10%22/></g></svg>")}
+.ico.link{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.5 14.5 14.5 9.5%22/><path d=%22M11 6.5 13 4.5a4.2 4.2 0 0 1 6 6l-2 2%22/><path d=%22M13 17.5l-2 2a4.2 4.2 0 0 1-6-6l2-2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.5 14.5 14.5 9.5%22/><path d=%22M11 6.5 13 4.5a4.2 4.2 0 0 1 6 6l-2 2%22/><path d=%22M13 17.5l-2 2a4.2 4.2 0 0 1-6-6l2-2%22/></g></svg>")}
+.ico.mail{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%225%22 width=%2218.8%22 height=%2214%22 rx=%222%22/><path d=%22m3.4 6.6 8.6 6.2 8.6-6.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%225%22 width=%2218.8%22 height=%2214%22 rx=%222%22/><path d=%22m3.4 6.6 8.6 6.2 8.6-6.2%22/></g></svg>")}
+.ico.chat{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M21 12.5a8 8 0 0 1-8.5 8 9 9 0 0 1-3.6-.7L3.5 21.5l1.7-5A8 8 0 0 1 4.5 12a8 8 0 0 1 8-8 8 8 0 0 1 8.5 8.5z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M21 12.5a8 8 0 0 1-8.5 8 9 9 0 0 1-3.6-.7L3.5 21.5l1.7-5A8 8 0 0 1 4.5 12a8 8 0 0 1 8-8 8 8 0 0 1 8.5 8.5z%22/></g></svg>")}
+.ico.book{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 4.5h6a3 3 0 0 1 3 3V20a2.5 2.5 0 0 0-2.5-2H4z%22/><path d=%22M20 4.5h-6a3 3 0 0 0-3 3V20a2.5 2.5 0 0 1 2.5-2H20z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 4.5h6a3 3 0 0 1 3 3V20a2.5 2.5 0 0 0-2.5-2H4z%22/><path d=%22M20 4.5h-6a3 3 0 0 0-3 3V20a2.5 2.5 0 0 1 2.5-2H20z%22/></g></svg>")}
+.ico.clipboard{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%225%22 y=%224.5%22 width=%2214%22 height=%2216.5%22 rx=%222%22/><rect x=%229%22 y=%222.6%22 width=%226%22 height=%223.8%22 rx=%221.2%22/><path d=%22M8.8 11.5h6.4M8.8 15.5h4.4%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%225%22 y=%224.5%22 width=%2214%22 height=%2216.5%22 rx=%222%22/><rect x=%229%22 y=%222.6%22 width=%226%22 height=%223.8%22 rx=%221.2%22/><path d=%22M8.8 11.5h6.4M8.8 15.5h4.4%22/></g></svg>")}
+.ico.folder{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 6.5a2 2 0 0 1 2-2h4l2 2.6h8a2 2 0 0 1 2 2v9.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 6.5a2 2 0 0 1 2-2h4l2 2.6h8a2 2 0 0 1 2 2v9.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22/></g></svg>")}
+.ico.shield{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 2.8 20 6v6c0 4.6-3.3 8-8 9.4C8 20 4.7 16.6 4.7 12V6z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 2.8 20 6v6c0 4.6-3.3 8-8 9.4C8 20 4.7 16.6 4.7 12V6z%22/></g></svg>")}
+.ico.bug{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%228%22 y=%227.5%22 width=%228%22 height=%2211%22 rx=%224%22/><path d=%22M8 12H3.5M20.5 12H16M8.8 8.2 6 5.4M15.2 8.2 18 5.4M8.8 17.8 6 20.6M15.2 17.8 18 20.6%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%228%22 y=%227.5%22 width=%228%22 height=%2211%22 rx=%224%22/><path d=%22M8 12H3.5M20.5 12H16M8.8 8.2 6 5.4M15.2 8.2 18 5.4M8.8 17.8 6 20.6M15.2 17.8 18 20.6%22/></g></svg>")}
+.ico.help{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M9.6 9.4a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.8%22/><path d=%22M12 17.2h.01%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M9.6 9.4a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.8%22/><path d=%22M12 17.2h.01%22/></g></svg>")}
+.ico.coin{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M14.6 9.2a3 3 0 0 0-4.8.5c-.8 1.6 1 2.1 2.2 2.6s3 1 2.2 2.6a3 3 0 0 1-4.8.5%22/><path d=%22M12 6.6v10.8%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M14.6 9.2a3 3 0 0 0-4.8.5c-.8 1.6 1 2.1 2.2 2.6s3 1 2.2 2.6a3 3 0 0 1-4.8.5%22/><path d=%22M12 6.6v10.8%22/></g></svg>")}
+.ico.star{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m12 3.4 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 10l6.2-.9z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m12 3.4 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 10l6.2-.9z%22/></g></svg>")}
+.ico.idea{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.2 17.5a6.5 6.5 0 1 1 5.6 0%22/><path d=%22M9.5 17.5h5M10.2 20.6h3.6%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.2 17.5a6.5 6.5 0 1 1 5.6 0%22/><path d=%22M9.5 17.5h5M10.2 20.6h3.6%22/></g></svg>")}
+.ico.settings{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 7h8M17.5 7H20M4 12h3.5M13 12h7M4 17h6.5M16 17H20%22/><circle cx=%2214.5%22 cy=%227%22 r=%222.2%22/><circle cx=%2210%22 cy=%2212%22 r=%222.2%22/><circle cx=%2213%22 cy=%2217%22 r=%222.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 7h8M17.5 7H20M4 12h3.5M13 12h7M4 17h6.5M16 17H20%22/><circle cx=%2214.5%22 cy=%227%22 r=%222.2%22/><circle cx=%2210%22 cy=%2212%22 r=%222.2%22/><circle cx=%2213%22 cy=%2217%22 r=%222.2%22/></g></svg>")}
+
 
 /* ==== the professional departures =================================
    Everything above is sage's geometry, unchanged. These are the four
@@ -929,10 +1523,10 @@ body{
 <section class="slide"><div class="stage">
   <div class="eyebrow">The mechanism</div>
   <h2 class="title">Retrieval is three jobs wearing one name</h2>
-  <div class="timeline">
-    <div class="tl-row"><div class="tl-time">Index</div><div class="tl-what"><b>Cut it up and file it</b><span>Split each document into chunks, turn each chunk into a vector, store it with whatever you kept about where it came from</span></div></div>
-    <div class="tl-row"><div class="tl-time">Search</div><div class="tl-what"><b>Pull the thin stack</b><span>Turn the question into a vector, return the k nearest chunks. Usually k is 5. Nobody in the room ever chose 5</span></div></div>
-    <div class="tl-row"><div class="tl-time">Write</div><div class="tl-what"><b>Answer from the stack</b><span>Hand those chunks to the model with the question. It answers from what it was handed, and from nothing else</span></div></div>
+  <div class="flow">
+    <div class="fl-step"><span class="ico file"></span><b>Index</b><span>Split each document into chunks, embed each one, store it with whatever you kept about where it came from.</span></div>
+    <div class="fl-step"><span class="ico search"></span><b>Search</b><span>Turn the question into a vector and return the k nearest chunks. Usually k is 5. Nobody in the room ever chose 5.</span></div>
+    <div class="fl-step"><span class="ico monitor"></span><b>Write</b><span>Hand those chunks to the model with the question. It answers from what it was handed, and from nothing else.</span></div>
   </div>
   <div class="kicker">The model never sees your corpus. It sees five paragraphs somebody else picked.</div>
   <div class="pageno">6</div>
@@ -1142,14 +1736,29 @@ body{
 </div></section>
 
 
-<!-- 20 . the turn -->
+<!-- 20 . the stack -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The order</div>
+  <h2 class="title">Nothing above works until the layer under it does</h2>
+  <div class="layers">
+    <div class="ly-row"><b>The answer</b><span>Grounding, citation, the refusal threshold. Where almost everyone starts.</span></div>
+    <div class="ly-row"><b>Retrieval</b><span>k, re-ranking, hybrid search. Worth tuning, and only once the two below are fixed.</span></div>
+    <div class="ly-row hi"><b>The index</b><span>Chunking, the five fields, freshness. The largest effect per hour spent in this whole deck.</span></div>
+    <div class="ly-row hi"><b>The corpus</b><span>What is actually in the folder: the scanned pages, the four versions, the undated file that wins forever.</span></div>
+  </div>
+  <div class="kicker">Every hour spent on the top row while the bottom row is broken is an hour spent on the wrong layer.</div>
+  <div class="pageno">20</div>
+</div></section>
+
+
+<!-- 21 . the turn -->
 <section class="slide"><div class="stage dark">
   <div class="eyebrow">The turn</div>
   <div class="statement">
     <h2>You are not debugging an answer.<br>You are debugging a <em>retrieval</em>.</h2>
     <p>Every hour spent rewriting the prompt to fix a wrong fact is an hour spent on the wrong layer. Score the retrieval first. Then the answer is a separate, smaller problem.</p>
   </div>
-  <div class="pageno">20</div>
+  <div class="pageno">21</div>
 </div></section>
 
 
@@ -1165,7 +1774,7 @@ body{
     <tr><td>Data retention, CVs</td><td>Retention schedule 2025</td><td>No</td></tr>
   </table>
   <div class="kicker">If your set has no failures in it, you wrote the set to pass.</div>
-  <div class="pageno">21</div>
+  <div class="pageno">22</div>
 </div></section>
 
 
@@ -1181,7 +1790,7 @@ body{
     <tr><td>When to run it</td><td>First, always</td><td>After retrieval is fixed</td></tr>
   </table>
   <div class="kicker">Run them together and every failure looks like a model problem.</div>
-  <div class="pageno">22</div>
+  <div class="pageno">23</div>
 </div></section>
 
 
@@ -1195,7 +1804,7 @@ body{
   </div>
   <div class="note">One rule: do not change the questions after you see the score. Report the count, then only the failures, and notice whether they share a document type or a date range.</div>
   <div class="checkpoint"><b>Checkpoint</b><span>What is your recall at 5, out of 20? First number, not the tuned one.</span></div>
-  <div class="pageno">23</div>
+  <div class="pageno">24</div>
 </div></section>
 
 
@@ -1220,7 +1829,7 @@ body{
     <div class="card tip"><div class="badge">3</div><h3>Print the chunk, not just the link</h3><p>During the pilot, show the retrieved paragraph beside the answer. Your reviewers will find retrieval bugs you would never have written a test for, while reading for something else.</p></div>
   </div>
   <div class="kicker">Citations are not decoration. They are how the room finds your retrieval bugs for free.</div>
-  <div class="pageno">25</div>
+  <div class="pageno">26</div>
 </div></section>
 
 
@@ -1237,7 +1846,7 @@ body{
     <b>A system that never refuses is a system that always answers, including when it should not.</b>
     <span>Your refusal log is the best backlog you will ever get, and it writes itself.</span>
   </div>
-  <div class="pageno">26</div>
+  <div class="pageno">27</div>
 </div></section>
 
 
@@ -1254,7 +1863,7 @@ body{
     <tr><td>Cheaper answer model</td><td>Down hard</td><td>Flat, once grounded</td></tr>
   </table>
   <div class="source">Put your own four inputs in before you quote any of this to somebody who signs things. Every cost figure we hand you is a model, not a case study.</div>
-  <div class="pageno">27</div>
+  <div class="pageno">28</div>
 </div></section>
 
 
@@ -1265,7 +1874,7 @@ body{
     <h2>Every model on this slide<br>gets replaced within a <em>year</em>.</h2>
     <p>The folder audit, the twenty questions and the five fields you kept do not. That is the whole reason we spent an afternoon on filing instead of on prompts.</p>
   </div>
-  <div class="pageno">28</div>
+  <div class="pageno">29</div>
 </div></section>
 
 
@@ -1288,7 +1897,7 @@ body{
     </div></div>
   </div>
   <div class="source">Qu, Tu and Bao, Findings of NAACL 2025, arXiv 2410.13070, against Shaukat, Adnan and Kuhn, arXiv 2603.06976, March 2026. Both are on the reading list we hand over.</div>
-  <div class="pageno">29</div>
+  <div class="pageno">30</div>
 </div></section>
 
 
@@ -1312,13 +1921,13 @@ body{
     <b>Nobody is going to tell you the answer was wrong.</b>
     <span>They will quietly stop using it, and the usage chart will look like a bad launch rather than a retrieval bug. Your twenty questions are the only alarm you get.</span>
   </div>
-  <div class="pageno">30</div>
+  <div class="pageno">31</div>
 </div></section>
 
 
 <nav class="nav" aria-label="Slide navigation">
   <button id="prev" aria-label="Previous slide">&#8249;</button>
-  <span class="count" id="counter">1 / 30</span>
+  <span class="count" id="counter">1 / 31</span>
   <button id="next" aria-label="Next slide">&#8250;</button>
 </nav>
 
