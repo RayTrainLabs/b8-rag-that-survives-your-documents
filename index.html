@@ -56,6 +56,7 @@
   --muted:#5C6B62;           /* 5.12:1 on the page, 4.65:1 on a card. Body
                                 text sits here and clears AA on both */
   --card:#E6EBE4;
+  --tip-bg:#DCE7DD;      /* shortcut card ground: the sage accent, one step off the card and no further */
   --card-line:#D3DBCF;
   --dark-bg:#1C2622;         /* gradient start, and the flat fallback */
   --dark-bg-to:#243029;      /* gradient end. 1.19:1 apart, so the wash reads
@@ -500,6 +501,107 @@ body{
 .stage.dark::after{color:var(--accent-lift)}
 .stage:has(.t-h1)::after{content:none}
 
+/* ---- evidence: chart, stat, source, shortcut ----------------------
+   Four blocks, added 2026-09-12, because a deck can follow every rule
+   above and still carry nothing a room can quote on Monday. The gap
+   was found the same way the layout gap was: by looking at thirty
+   finished pages and asking what a participant would write down.
+
+   None of these is decoration. A chart earns its place only when the
+   shape of the numbers is the argument. If the point survives being
+   said in a sentence, say it in a sentence.
+   ------------------------------------------------------------------ */
+
+/* A horizontal bar chart. Positioned exactly where .tbl is, because
+   it is a table the eye can read without reading: same top, same
+   left, same 1.75in first column, so a chart slide and a table slide
+   in the same block line up when you flick between them.
+
+   Six rows is the ceiling, and that is geometry rather than taste. Six
+   rows at .24in on a .14in gap runs from 1.32 to 3.46, which leaves a
+   quarter inch before .band at 3.7125. A seventh row eats that gap and
+   the band sits on the chart. check.py fails it. */
+.chart{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);
+  display:grid;row-gap:calc(.14 * var(--in));
+  height:calc(2.14 * var(--in));align-content:space-between;
+}
+.ch-row{
+  display:grid;align-items:center;
+  grid-template-columns:calc(1.75 * var(--in)) 1fr calc(.85 * var(--in));
+  column-gap:calc(.16 * var(--in));
+}
+.ch-lab{
+  font-family:var(--head);font-weight:600;
+  font-size:calc(9.8 * var(--pt));line-height:1.25;color:var(--ink);
+}
+/* The track is the card border colour, not a grey: a chart that
+   introduces a fourth neutral makes the deck look assembled from
+   two decks. The fill is a pseudo element so the bar value is one
+   number in the markup and nothing else. */
+.ch-bar{
+  height:calc(.24 * var(--in));background:var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.ch-bar::after{
+  content:'';display:block;height:100%;
+  width:calc(var(--v) * 1%);background:var(--accent);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.ch-val{
+  font-family:var(--head);font-weight:700;
+  font-size:calc(11.2 * var(--pt));line-height:1;color:var(--accent);
+  text-align:right;white-space:nowrap;
+}
+.dark .ch-lab{color:#fff}
+.dark .ch-bar{background:var(--dark-line)}
+.dark .ch-bar::after{background:var(--accent-lift)}
+.dark .ch-val{color:var(--accent-lift)}
+
+/* The source line. Any number on a slide that came from outside this
+   room carries one, and it sits low and small on purpose: the room
+   reads the number, the sceptic in row three reads the source.
+
+   y 4.55 clears .kicker at 4.31 above it and .strip at 4.8156 below,
+   so a slide can carry a kicker and a source and neither moves. */
+.source{
+  position:absolute;left:var(--margin);top:calc(4.55 * var(--in));
+  width:var(--content);
+  font-size:calc(8 * var(--pt));line-height:1.35;color:var(--muted);
+  font-style:italic;
+}
+.dark .source{color:var(--dark-body)}
+
+/* The number that survives the room. One per card, at the top, set
+   large enough to read from the back and paired with a unit small
+   enough that the numeral is what lands. A card with a .stat in it
+   keeps its heading: the numeral says how much, the heading says of
+   what, and a numeral with no heading is a quiz. */
+.stat{
+  font-family:var(--head);font-weight:700;
+  font-size:calc(30 * var(--pt));line-height:1;
+  letter-spacing:-.02em;color:var(--accent);
+  margin-bottom:calc(.12 * var(--in));
+}
+.stat small{margin-left:calc(.045 * var(--in));font-size:calc(12 * var(--pt));font-weight:600;color:var(--muted);letter-spacing:0}
+.grid.four .stat{font-size:calc(22 * var(--pt))}
+.dark .stat{color:var(--accent-lift)}
+.dark .stat small{color:var(--dark-body)}
+
+/* The shortcut. The one card in a grid that carries the thing they
+   could not have read in the documentation: the workaround, the
+   default worth changing, the ninety seconds that saves the afternoon.
+
+   It is a modifier on .card and not a block of its own, so it inherits
+   every measurement the grid already settled and cannot collide with
+   anything. The rule on the left is 3pt, which is the same
+   weight as the checkpoint's, so the two read as the same gesture. */
+.card.tip{background:var(--tip-bg);border-left:calc(4 * var(--pt)) solid var(--accent-deep)}
+.card.tip .badge{background:var(--accent-deep)}
+.dark .card.tip{border-left-color:var(--accent-lift)}
+.dark .card.tip .badge{background:var(--accent-lift);color:var(--dark-bg)}
+
 :root{--footmark:"raygency \00b7  B8"}
 </style>
 
@@ -577,10 +679,10 @@ body{
 <section class="slide"><div class="stage">
   <div class="eyebrow">The mechanism</div>
   <h2 class="title">Retrieval is three jobs wearing one name</h2>
-  <div class="grid three">
-    <div class="card"><div class="badge label">Index</div><h3>Cut and file</h3><p>Split documents into chunks, turn each into a vector, store it with whatever you kept about where it came from.</p></div>
-    <div class="card"><div class="badge label">Search</div><h3>Pull the stack</h3><p>Turn the question into a vector, return the k nearest chunks. Usually k is 5. Nobody chose 5.</p></div>
-    <div class="card"><div class="badge label">Generate</div><h3>Write it up</h3><p>Hand those chunks to the model with the question. It answers from what it was handed, and only that.</p></div>
+  <div class="timeline">
+    <div class="tl-row"><div class="tl-time">Index</div><div class="tl-what"><b>Cut it up and file it</b><span>Split each document into chunks, turn each chunk into a vector, store it with whatever you kept about where it came from</span></div></div>
+    <div class="tl-row"><div class="tl-time">Search</div><div class="tl-what"><b>Pull the thin stack</b><span>Turn the question into a vector, return the k nearest chunks. Usually k is 5. Nobody in the room ever chose 5</span></div></div>
+    <div class="tl-row"><div class="tl-time">Write</div><div class="tl-what"><b>Answer from the stack</b><span>Hand those chunks to the model with the question. It answers from what it was handed, and from nothing else</span></div></div>
   </div>
   <div class="kicker">The model never sees your corpus. It sees five paragraphs somebody else picked.</div>
   <div class="pageno">6</div>
@@ -604,7 +706,24 @@ body{
 </div></section>
 
 
-<!-- 8 . the confident citation -->
+<!-- 8 . the chart -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The numbers</div>
+  <h2 class="title">Most of what it retrieves is not the answer</h2>
+  <div class="chart">
+    <div class="ch-row"><span class="ch-lab">Cluster semantic</span><span class="ch-bar" style="--v:100"></span><span class="ch-val">8.0%</span></div>
+    <div class="ch-row"><span class="ch-lab">Recursive character</span><span class="ch-bar" style="--v:86"></span><span class="ch-val">6.9%</span></div>
+    <div class="ch-row"><span class="ch-lab">Token split</span><span class="ch-bar" style="--v:64"></span><span class="ch-val">5.1%</span></div>
+    <div class="ch-row"><span class="ch-lab">LLM written</span><span class="ch-bar" style="--v:49"></span><span class="ch-val">3.9%</span></div>
+    <div class="ch-row"><span class="ch-lab">Semantic, default</span><span class="ch-bar" style="--v:19"></span><span class="ch-val">1.5%</span></div>
+  </div>
+  <div class="kicker">Recall across all seven chunkers moved eight points. How much of the window was worth reading moved five fold.</div>
+  <div class="source">Chroma, Evaluating Chunking Strategies for Retrieval, July 2024. Share of retrieved tokens that were the answer, at k = 5, text-embedding-3-large, five corpora.</div>
+  <div class="pageno">8</div>
+</div></section>
+
+
+<!-- 9 . the confident citation -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">The contrast</div>
   <h2 class="title">Same question. Same index. Two answers.</h2>
@@ -618,56 +737,47 @@ body{
       <p>Sixteen days, per the attached policy. The retrieved chunk was an internal events memo that used the phrase "family days" twice.</p>
     </div>
   </div>
-  <div class="kicker">It did not hallucinate. It answered accurately from the wrong paragraph.</div>
-  <div class="pageno">8</div>
-</div></section>
-
-
-<!-- 9 . similarity is not relevance -->
-<section class="slide"><div class="stage">
-  <div class="eyebrow">The mechanism</div>
-  <h2 class="title">Similar and relevant are not the same word</h2>
-  <div class="grid two">
-    <div class="card">
-      <div class="badge label">What the vector knows</div>
-      <ul>
-        <li>These two paragraphs use the same vocabulary</li>
-        <li>They sit near each other in meaning space</li>
-        <li>One scores 0.81, the other 0.79</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="badge label">What the vector cannot know</div>
-      <ul>
-        <li>Which one is current</li>
-        <li>Which one applies to Germany</li>
-        <li>Which one is the policy and which is a summary of it</li>
-      </ul>
-    </div>
+  <div class="band">
+    <b>It did not hallucinate. It answered accurately from the wrong paragraph.</b>
+    <span>Every eval you own is pointed at the answer. Nothing you own is pointed at the paragraph.</span>
   </div>
-  <div class="kicker">Everything in the right hand column is metadata you either kept or threw away at indexing time.</div>
   <div class="pageno">9</div>
 </div></section>
 
 
-<!-- 10 . the corpus audit -->
+<!-- 10 . similarity is not relevance -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The mechanism</div>
+  <h2 class="title">Similar and relevant are not the same word</h2>
+  <table class="tbl">
+    <tr><th>What the vector knows</th><th>What the vector cannot know</th></tr>
+    <tr><td>These two paragraphs use the same vocabulary</td><td>Which one is current</td></tr>
+    <tr><td>They sit near each other in meaning space</td><td>Which one applies to Germany</td></tr>
+    <tr><td>One scores 0.81, the other 0.79</td><td>Which is the policy and which summarises it</td></tr>
+  </table>
+  <div class="kicker">Everything in the right hand column is metadata you either kept or threw away at indexing time.</div>
+  <div class="pageno">10</div>
+</div></section>
+
+
+<!-- 11 . the corpus audit -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">The unspent hour</div>
   <h2 class="title">Nobody opens the folder before they index it</h2>
   <div class="grid three">
-    <div class="card"><div class="badge">1</div><h3>Count the scans</h3><p>Pages with no extractable text return nothing and report no error. Grep for it.</p></div>
-    <div class="card"><div class="badge">2</div><h3>Count the duplicates</h3><p>Four near identical versions of one policy will split your retrieval four ways.</p></div>
-    <div class="card"><div class="badge">3</div><h3>Count the undated</h3><p>A document with no date in it cannot lose to a newer one. It will win forever.</p></div>
+    <div class="card"><div class="badge">1</div><h3>Count the duplicates</h3><p>Four near identical versions of one policy will split your retrieval four ways.</p></div>
+    <div class="card"><div class="badge">2</div><h3>Count the undated</h3><p>A document with no date in it cannot lose to a newer one. It will win forever.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Sort by bytes per page</h3><p>A scanned page is huge and returns no text at all. That one sort finds every silent file in thirty seconds, and no ingest log will tell you.</p></div>
   </div>
   <div class="band">
     <b>One hour with the folder open beats one week of tuning.</b>
     <span>You will find the reason for three of your six failure modes before you write any code.</span>
   </div>
-  <div class="pageno">10</div>
+  <div class="pageno">11</div>
 </div></section>
 
 
-<!-- 11 . chapter 02 -->
+<!-- 12 . chapter 02 -->
 <section class="slide"><div class="stage dark">
   <div class="eyebrow">Block 2 of 4 &middot; Filing, not searching</div>
   <div class="chapnum">02</div>
@@ -678,50 +788,41 @@ body{
 </div></section>
 
 
-<!-- 12 . what a chunk is -->
+<!-- 13 . what a chunk is -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">The unit</div>
   <h2 class="title">A chunk has to stand up on its own</h2>
   <div class="grid three">
     <div class="card"><div class="badge">1</div><h3>It says what it is about</h3><p>"As stated above, this does not apply" retrieves perfectly and means nothing.</p></div>
-    <div class="card"><div class="badge">2</div><h3>It carries its address</h3><p>Document, section, version, date. Attached to the chunk, not to the file.</p></div>
-    <div class="card"><div class="badge">3</div><h3>It answers one thing</h3><p>If it spans two rules, it will be retrieved for both and be half right for each.</p></div>
+    <div class="card"><div class="badge">2</div><h3>It answers one thing</h3><p>If it spans two rules, it will be retrieved for both and be half right for each.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Split on the headings</h3><p>Before anything clever. Your policies already number their own sections, so one afternoon of regex buys structure aware chunking.</p></div>
   </div>
-  <div class="kicker">The test: if a new joiner could not answer from the chunk alone, neither can the model.</div>
-  <div class="pageno">12</div>
-</div></section>
-
-
-<!-- 13 . characters or structure -->
-<section class="slide"><div class="stage">
-  <div class="eyebrow">The choice</div>
-  <h2 class="title">Split on structure, not on character count</h2>
-  <div class="grid two">
-    <div class="card">
-      <div class="badge label">800 characters, 100 overlap</div>
-      <ul>
-        <li>Two lines to write, works on anything</li>
-        <li>Cuts tables in half, every time</li>
-        <li>Splits a numbered rule from its number</li>
-        <li>Your default today, almost certainly</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="badge label">Heading, section, table</div>
-      <ul>
-        <li>Needs a parser per document type</li>
-        <li>Keeps a rule with its exception</li>
-        <li>Gives you the heading path for free</li>
-        <li>Two days of work, once</li>
-      </ul>
-    </div>
+  <div class="band">
+    <b>If a new joiner could not answer from the chunk alone, neither can the model.</b>
+    <span>Read three chunks out loud at random. That is the whole test, and it takes four minutes.</span>
   </div>
-  <div class="kicker">Structure aware chunking is the single change with the largest effect per hour spent.</div>
   <div class="pageno">13</div>
 </div></section>
 
 
-<!-- 14 . the metadata -->
+<!-- 14 . characters or structure -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The choice</div>
+  <h2 class="title">Split on structure, not on character count</h2>
+  <table class="tbl">
+    <tr><th>Approach</th><th>What it costs</th><th>What it buys</th></tr>
+    <tr><td>Fixed 800 characters</td><td>Two lines of code</td><td>Cuts tables in half</td></tr>
+    <tr><td>Add 100 of overlap</td><td>Nothing</td><td>Hides it, does not fix it</td></tr>
+    <tr><td>Split on headings</td><td>One afternoon</td><td>Rule keeps its exception</td></tr>
+    <tr><td>Parser per doc type</td><td>Two days, once</td><td>Heading path, free</td></tr>
+  </table>
+  <div class="kicker">Structure aware chunking is the single change with the largest effect per hour spent.</div>
+  <div class="source">Shaukat, Adnan and Kuhn, arXiv 2603.06976, March 2026. Paragraph group chunking scored 24% Precision@1 against 2 to 3% for fixed size character splitting, across 36 methods and six domains.</div>
+  <div class="pageno">14</div>
+</div></section>
+
+
+<!-- 15 . the metadata -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">The index</div>
   <h2 class="title">Five fields you wish you had kept</h2>
@@ -733,11 +834,12 @@ body{
     <tr><td>Heading path</td><td>The chunk knows its topic</td><td>Free, if parsed</td></tr>
     <tr><td>Source URL</td><td>The reader can verify</td><td>Free, at ingest</td></tr>
   </table>
-  <div class="pageno">14</div>
+  <div class="source">Bruni, Avvenuti, Tonellotto and Tesconi, AMAQA, arXiv 2505.13557, May 2025. Holding these as real fields rather than as text inside the chunk moved answer accuracy from 0.50 to 0.86 on GPT-4o.</div>
+  <div class="pageno">15</div>
 </div></section>
 
 
-<!-- 15 . tiers -->
+<!-- 16 . tiers -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">Before we start</div>
   <h2 class="title">Nobody gets stuck at the door</h2>
@@ -747,11 +849,11 @@ body{
     <div class="card"><div class="badge label">C &middot; Watch</div><h3>Follow on screen</h3><p>Use the sample corpus we hand over and run it at your desk tonight.</p></div>
   </div>
   <div class="checkpoint"><b>Checkpoint</b><span>Call out your letter. A, B or C.</span></div>
-  <div class="pageno">15</div>
+  <div class="pageno">16</div>
 </div></section>
 
 
-<!-- 16 . round 1 -->
+<!-- 17 . round 1 -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">Round 1 &middot; 20 minutes</div>
   <h2 class="title">Audit the folder before you trust the index</h2>
@@ -761,11 +863,11 @@ body{
   </div>
   <div class="note">One rule: point it at the real folder, not a cleaned copy. Ask for one row per file and no summary. Notice the rows with an empty text column and the rows with no date.</div>
   <div class="checkpoint"><b>Checkpoint</b><span>How many of your files came back with no extractable text? Say the number out loud.</span></div>
-  <div class="pageno">16</div>
+  <div class="pageno">17</div>
 </div></section>
 
 
-<!-- 17 . chapter 03 -->
+<!-- 18 . chapter 03 -->
 <section class="slide"><div class="stage dark">
   <div class="eyebrow">Block 3 of 4 &middot; Measuring retrieval</div>
   <div class="chapnum">03</div>
@@ -776,32 +878,32 @@ body{
 </div></section>
 
 
-<!-- 18 . recall at k -->
+<!-- 19 . recall at k -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">The measure</div>
   <h2 class="title">Recall at k in one sentence</h2>
   <div class="grid three">
     <div class="card"><div class="badge">1</div><h3>Write the question</h3><p>A real one, from a real person, phrased the way they actually phrase it.</p></div>
-    <div class="card"><div class="badge">2</div><h3>Name the document</h3><p>The one a knowledgeable colleague would hand over. One line, by hand.</p></div>
-    <div class="card"><div class="badge">3</div><h3>Count the hits</h3><p>Of twenty questions, in how many did that document appear in the top five? That is recall at 5.</p></div>
+    <div class="card"><div class="badge">2</div><h3>Name the document</h3><p>The one a knowledgeable colleague would hand over. One line, by hand, before you run anything.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Score at 5 and at 10</h3><p>In the same run. In the top ten but not the top five is a re-ranking problem and an afternoon. In neither is an indexing problem and a week. Two numbers, and they tell you which.</p></div>
   </div>
   <div class="kicker">It takes ninety minutes to build and it is the only number in this deck that predicts anything.</div>
-  <div class="pageno">18</div>
+  <div class="pageno">19</div>
 </div></section>
 
 
-<!-- 19 . the turn -->
+<!-- 20 . the turn -->
 <section class="slide"><div class="stage dark">
   <div class="eyebrow">The turn</div>
   <div class="statement">
     <h2>You are not debugging an answer.<br>You are debugging a <em>retrieval</em>.</h2>
     <p>Every hour spent rewriting the prompt to fix a wrong fact is an hour spent on the wrong layer. Score the retrieval first. Then the answer is a separate, smaller problem.</p>
   </div>
-  <div class="pageno">19</div>
+  <div class="pageno">20</div>
 </div></section>
 
 
-<!-- 20 . the eval set -->
+<!-- 21 . the eval set -->
 <section class="slide"><div class="stage">
   <div class="eyebrow">The eval set</div>
   <h2 class="title">Twenty rows tell you more than a dashboard</h2>
@@ -810,67 +912,25 @@ body{
     <tr><td>Parental leave in Germany</td><td>HR policy 2026, sec 4</td><td>No</td></tr>
     <tr><td>Notice period, 3 year staff</td><td>Contract template v7</td><td>Yes</td></tr>
     <tr><td>Who signs a 40k invoice</td><td>Approval matrix 2026</td><td>Yes</td></tr>
-    <tr><td>Expensing a home desk</td><td>Expense policy, annex B</td><td>No</td></tr>
     <tr><td>Data retention, CVs</td><td>Retention schedule 2025</td><td>No</td></tr>
   </table>
-  <div class="pageno">20</div>
-</div></section>
-
-
-<!-- 21 . two evals -->
-<section class="slide"><div class="stage">
-  <div class="eyebrow">The split</div>
-  <h2 class="title">Score the stack before you score the story</h2>
-  <div class="grid two">
-    <div class="card">
-      <div class="badge label">Retrieval eval</div>
-      <ul>
-        <li>Did the right document come back</li>
-        <li>Answer is yes or no, no judgement</li>
-        <li>Runs in seconds, costs nothing</li>
-        <li>Fix here first, always</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="badge label">Answer eval</div>
-      <ul>
-        <li>Given the right document, was the answer right</li>
-        <li>Needs a human or a grading model</li>
-        <li>Runs in minutes, costs real money</li>
-        <li>Meaningless until retrieval is fixed</li>
-      </ul>
-    </div>
-  </div>
-  <div class="kicker">Run them together and every failure looks like a model problem.</div>
+  <div class="kicker">If your set has no failures in it, you wrote the set to pass.</div>
   <div class="pageno">21</div>
 </div></section>
 
 
-<!-- 22 . writing the questions -->
+<!-- 22 . two evals -->
 <section class="slide"><div class="stage">
-  <div class="eyebrow">The template</div>
-  <h2 class="title">Where the twenty questions come from</h2>
-  <div class="grid two">
-    <div class="card">
-      <div class="badge label">Do</div>
-      <ul>
-        <li>Take them from last month's support tickets</li>
-        <li>Keep the original phrasing, typos included</li>
-        <li>Include five you know it gets wrong</li>
-        <li>Name the document before you run anything</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="badge label">Don't</div>
-      <ul>
-        <li>Write questions you already know it answers</li>
-        <li>Clean the wording into policy language</li>
-        <li>Let the system pick the expected document</li>
-        <li>Stop at five because twenty felt long</li>
-      </ul>
-    </div>
-  </div>
-  <div class="kicker">If your set has no failures in it, you wrote the set to pass.</div>
+  <div class="eyebrow">The split</div>
+  <h2 class="title">Score the stack before you score the story</h2>
+  <table class="tbl">
+    <tr><th></th><th>Retrieval eval</th><th>Answer eval</th></tr>
+    <tr><td>What it asks</td><td>Did the right one come back</td><td>Was the answer right</td></tr>
+    <tr><td>Who decides</td><td>A string match</td><td>A human or a grader</td></tr>
+    <tr><td>What it costs</td><td>Seconds, nothing</td><td>Minutes, real money</td></tr>
+    <tr><td>When to run it</td><td>First, always</td><td>After retrieval is fixed</td></tr>
+  </table>
+  <div class="kicker">Run them together and every failure looks like a model problem.</div>
   <div class="pageno">22</div>
 </div></section>
 
@@ -907,7 +967,7 @@ body{
   <div class="grid three">
     <div class="card"><div class="badge">1</div><h3>Cite the chunk, not the file</h3><p>"HR policy 2026, section 4" sends them to the paragraph. A filename sends them on a search.</p></div>
     <div class="card"><div class="badge">2</div><h3>Show the date</h3><p>A reader who sees 2019 next to the answer catches the error you never will.</p></div>
-    <div class="card"><div class="badge">3</div><h3>Link it, do not describe it</h3><p>If verifying costs more than re-asking a colleague, nobody verifies and nobody adopts.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Print the chunk, not just the link</h3><p>During the pilot, show the retrieved paragraph beside the answer. Your reviewers will find retrieval bugs you would never have written a test for, while reading for something else.</p></div>
   </div>
   <div class="kicker">Citations are not decoration. They are how the room finds your retrieval bugs for free.</div>
   <div class="pageno">25</div>
@@ -943,37 +1003,17 @@ body{
     <tr><td>Cheaper embedding model</td><td>Down at ingest only</td><td>Down, measurably</td></tr>
     <tr><td>Cheaper answer model</td><td>Down hard</td><td>Flat, once grounded</td></tr>
   </table>
+  <div class="source">Put your own four inputs in before you quote any of this to somebody who signs things. Every cost figure we hand you is a model, not a case study.</div>
   <div class="pageno">27</div>
 </div></section>
 
 
-<!-- 28 . the arithmetic -->
-<section class="slide"><div class="stage">
-  <div class="eyebrow">The arithmetic</div>
-  <h2 class="title">Do the sum before the pilot, not after</h2>
-  <div class="grid two">
-    <div class="card">
-      <div class="badge label">The inputs you already know</div>
-      <ul>
-        <li>Questions per day, from your ticket log</li>
-        <li>Chunks retrieved per question</li>
-        <li>Tokens per chunk, roughly 300</li>
-        <li>Re-index frequency, per month</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="badge label">The number that decides it</div>
-      <ul>
-        <li>Monthly answer cost, from the four above</li>
-        <li>Monthly ingest cost, usually a rounding error</li>
-        <li>Minutes saved per question, measured not assumed</li>
-        <li>The point where those two lines cross</li>
-      </ul>
-    </div>
-  </div>
-  <div class="band">
-    <b>This is a model, not a case study.</b>
-    <span>Put your own four inputs in before you quote the output to anyone who signs things.</span>
+<!-- 28 . the second turn -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">What you are actually building</div>
+  <div class="statement">
+    <h2>Every model on this slide<br>gets replaced within a <em>year</em>.</h2>
+    <p>The folder audit, the twenty questions and the five fields you kept do not. That is the whole reason we spent an afternoon on filing instead of on prompts.</p>
   </div>
   <div class="pageno">28</div>
 </div></section>
@@ -984,11 +1024,12 @@ body{
   <div class="eyebrow">Where this breaks</div>
   <h2 class="title">Three things I still get wrong</h2>
   <div class="grid three">
-    <div class="card"><div class="badge">1</div><h3>Tables in PDFs</h3><p>I have no reliable general answer. I parse them per document type and it does not transfer.</p></div>
-    <div class="card"><div class="badge">2</div><h3>Questions spanning ten documents</h3><p>Retrieval returns five chunks. "Summarise every exception across all policies" is not a retrieval question and I stop pretending it is.</p></div>
-    <div class="card"><div class="badge">3</div><h3>Freshness at scale</h3><p>Re-indexing a moving corpus without a stale window is still manual work in every system I have built.</p></div>
+    <div class="card"><div class="badge">1</div><h3>Tables inside PDFs</h3><p>I have no reliable general answer. I parse them per document type and it does not transfer to the next client.</p></div>
+    <div class="card"><div class="badge">2</div><h3>The research disagrees with me</h3><p>NAACL 2025 found fixed size chunking held up fine. A March 2026 study found structure aware winning ten to one. I teach the second and I could be wrong.</p></div>
+    <div class="card"><div class="badge">3</div><h3>Questions spanning ten documents</h3><p>"Summarise every exception across all policies" is not a retrieval question. I stopped pretending it was.</p></div>
   </div>
   <div class="kicker">If I do not know, I will say I do not know and come back to you with a precise answer.</div>
+  <div class="source">Qu, Tu and Bao, Findings of NAACL 2025, arXiv 2410.13070, against Shaukat, Adnan and Kuhn, arXiv 2603.06976, March 2026. Both are on the reading list we hand over.</div>
   <div class="pageno">29</div>
 </div></section>
 
@@ -1000,7 +1041,7 @@ body{
   <div class="grid three">
     <div class="card"><div class="badge">1</div><h3>Keep the audit</h3><p>The folder report from Round 1. Re-run it every time the corpus changes and diff the two.</p></div>
     <div class="card"><div class="badge">2</div><h3>Keep the twenty</h3><p>Your question set. It is the only thing here that still works after the model you use gets replaced.</p></div>
-    <div class="card"><div class="badge">3</div><h3>The homework</h3><p>One question set. Run it this Friday against your live index, and send me the first row where the right document was in the corpus and retrieval missed it.</p></div>
+    <div class="card"><div class="badge">3</div><h3>The homework</h3><p>One question set, one Friday. Run it against the live index and send me the first row where the right document was sitting in the corpus and retrieval missed it.</p></div>
   </div>
   <div class="kicker">Varun Tyagi &nbsp;&middot;&nbsp; Raygency &nbsp;&middot;&nbsp; raygency.com</div>
   <div class="pageno">30</div>
